@@ -19,4 +19,4 @@ jobs:
       - name: Run Examples
         shell: bash
         run: |
-          for exe in $(find build/examples -type f -executable); do echo $exe; $exe; done
+          ./build/examples/binary_tree

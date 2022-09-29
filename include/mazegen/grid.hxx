@@ -3,6 +3,8 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <string>
+#include <stdexcept>
 #include <iostream>
 
 enum class Direction {
