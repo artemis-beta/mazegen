@@ -51,7 +51,11 @@ class Grid {
         void eraseWall(int x, int y, Direction direction);
         std::vector<int> getDimensions() const {return {width_, height_};} 
         friend std::ostream& operator<<(std::ostream& os, Grid& grid) {
+            os << ' ';
+            for(int i{0}; i < grid.width_; ++i) os << "_ ";
+            os << std::endl;
             for(int i{0}; i < grid.width_; ++i) {
+                os << "|";
                 for(int j{0}; j < grid.height_; ++j) {
                     os << *grid.getCell(i, j);
                 }
