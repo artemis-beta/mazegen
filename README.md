@@ -1,5 +1,7 @@
 # Mazes for Programmers in C++
 
+[![mazegen](https://github.com/artemis-beta/mazegen/actions/workflows/build_examples.yml/badge.svg)](https://github.com/artemis-beta/mazegen/actions/workflows/build_examples.yml)
+
 This repository contains code following the outline algorithms in _Mazes for Programmers_ by Jamis Buck, which can be found [here](http://www.mazesforprogrammers.com/).
 
 _mazegen_ is a library containing maze construction algorithms which can be applied to a grid class.
