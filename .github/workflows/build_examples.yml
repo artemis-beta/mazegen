@@ -20,3 +20,9 @@ jobs:
         shell: bash
         run: |
           ./build/examples/binary_tree
+        if: ${{ matrix.os != 'windows-latest'}}
+      - name: Run Examples
+        shell: bash
+        run: |
+          ./build/Debug/examples/binary_tree
+        if: ${{ matrix.os == 'windows-latest'}}
