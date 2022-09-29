@@ -1,0 +1,22 @@
+name: mazegen
+on: [push]
+jobs:
+  build_and_examples:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    name: Build and Run Examples (${{ matrix.os }})
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+      - name: Build Library and Examples
+        run: |
+          cmake -Bbuild -DMAZEGEN_BUILD_EXAMPLES=ON
+          cmake --build build
+      - name: Run Examples
+        shell: bash
+        run: |
+          for exe in $(find build/examples -type f -executable); do echo $exe; $exe; done
