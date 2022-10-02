@@ -2,9 +2,12 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
+#include <string>
+#include <fstream>
 
 #include "mazegen/grid.hxx"
 
 void binary_tree(Grid& grid);
 void sidewinder(Grid& grid);
-void erase_random_(Grid& grid, std::vector<std::vector<int>>& run);
+void aldous_broder(Grid& grid);

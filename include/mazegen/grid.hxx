@@ -23,12 +23,17 @@ class Cell {
             {Direction::LEFT, nullptr},
             {Direction::RIGHT, nullptr}
         };
-        char east_wall_ = '|';
-        char south_wall_ = '_';
+        char east_wall_{'|'};
+        char south_wall_{'_'};
+        bool visited_{false};
     public:
+        std::shared_ptr<Cell> getNeighbour(Direction direction) const;
         void setNeighbour(Direction direction, std::shared_ptr<Cell> cell);
         void eraseRight() {east_wall_ = ' ';}
         void eraseDown() {south_wall_ = ' ';}
+        void setVisited() {visited_ = false;}
+        bool wasVisited() const {return visited_;}
+        std::vector<int> getCoordinates() const {return {x_, y_};}
         Cell() {}
         Cell(int x, int y) : x_(x), y_(y) {}
 
@@ -49,7 +54,8 @@ class Grid {
         std::shared_ptr<Cell> getCell(int x, int y);
         Grid(int width, int height) : cells_(create_grid_(width, height)), width_(width), height_(height) {}
         void eraseWall(int x, int y, Direction direction);
-        std::vector<int> getDimensions() const {return {width_, height_};} 
+        std::vector<int> getDimensions() const {return {width_, height_};}
+        std::vector<int> getNeighbourCoordinates(const std::shared_ptr<Cell> cell, Direction direction) const;
         friend std::ostream& operator<<(std::ostream& os, Grid& grid) {
             os << ' ';
             for(int i{0}; i < grid.width_; ++i) os << "_ ";

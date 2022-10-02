@@ -1,4 +1,5 @@
 #include "mazegen/grid.hxx"
+#include <memory>
 
 CellArray Grid::create_grid_(const int x, const int y) {
     CellArray grid_;
@@ -64,4 +65,36 @@ std::shared_ptr<Cell> Grid::getCell(int x, int y) {
     }
 
     return cells_[y][x];
+}
+
+std::shared_ptr<Cell> Cell::getNeighbour(Direction direction) const {
+    return neighbours_.at(direction);
+}
+
+std::vector<int> Grid::getNeighbourCoordinates(const std::shared_ptr<Cell> cell, Direction direction) const {
+    const std::vector<int> current_coords_{cell->getCoordinates()};
+
+    std::vector<int> offset_;
+
+    switch(direction) {
+        case Direction::UP:
+            offset_ = {0, -1};
+            break;
+        case Direction::DOWN:
+            offset_ = {0, 1};
+            break;
+        case Direction::RIGHT:
+            offset_ = {1, 0};
+            break;
+        default:
+            offset_ = {-1, 0};
+            break;
+    };
+
+    std::vector<int> new_coords_{current_coords_[0] + offset_[0], current_coords_[1] + offset_[1]};
+
+    if(new_coords_[0] >= width_ || new_coords_[0] < 0) return {};
+    if(new_coords_[1] >= height_ || new_coords_[1] < 0) return {};
+
+    return new_coords_;
 }
