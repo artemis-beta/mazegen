@@ -1,11 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <map>
-#include <memory>
 #include <string>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 enum class Direction {
     UP,
@@ -14,58 +12,38 @@ enum class Direction {
     RIGHT
 };
 
-class Cell {
-    private:
-        const int x_{-1}, y_{-1};
-        std::map<Direction, std::shared_ptr<Cell>> neighbours_{
-            {Direction::UP, nullptr},
-            {Direction::DOWN, nullptr},
-            {Direction::LEFT, nullptr},
-            {Direction::RIGHT, nullptr}
-        };
-        char east_wall_{'|'};
-        char south_wall_{'_'};
-        bool visited_{false};
-    public:
-        std::shared_ptr<Cell> getNeighbour(Direction direction) const;
-        void setNeighbour(Direction direction, std::shared_ptr<Cell> cell);
-        void eraseRight() {east_wall_ = ' ';}
-        void eraseDown() {south_wall_ = ' ';}
-        void setVisited() {visited_ = false;}
-        bool wasVisited() const {return visited_;}
-        std::vector<int> getCoordinates() const {return {x_, y_};}
-        Cell() {}
-        Cell(int x, int y) : x_(x), y_(y) {}
-
-        friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
-            os << cell.south_wall_ << cell.east_wall_;
-            return os;
-        }
-};
-
-typedef std::vector<std::vector<std::shared_ptr<Cell>>> CellArray;
-
 class Grid {
     private:
-        const CellArray cells_;
         const int width_{-1}, height_{-1};
-        CellArray create_grid_(int x, int y);
+        std::vector<std::vector<std::string>> hor_walls_;
+        std::vector<std::vector<std::string>> vert_walls_;
     public:
-        std::shared_ptr<Cell> getCell(int x, int y);
-        Grid(int width, int height) : cells_(create_grid_(width, height)), width_(width), height_(height) {}
-        void eraseWall(int x, int y, Direction direction);
+        Grid(int x, int y) : width_{x}, height_{y} {
+            hor_walls_ = std::vector<std::vector<std::string>>(height_, std::vector<std::string>(width_, "---+"));
+            vert_walls_ = std::vector<std::vector<std::string>>(height_, std::vector<std::string>(width_, "   |"));
+        }
         std::vector<int> getDimensions() const {return {width_, height_};}
-        std::vector<int> getNeighbourCoordinates(const std::shared_ptr<Cell> cell, Direction direction) const;
+        void linkCells(const std::vector<int>& coords_1, const Direction dir);
+        void eraseHorizontalWallAt(const int x, const int y);
+        void eraseVerticalWallAt(const int x, const int y);
+        bool checkPermittedPath(const std::vector<int>& coords, const Direction dir) const;
+        std::vector<Direction> getPermittedPaths(const std::vector<int>& coords) const;
         friend std::ostream& operator<<(std::ostream& os, Grid& grid) {
-            os << ' ';
-            for(int i{0}; i < grid.width_; ++i) os << "_ ";
+            os << "+";
+            for(int i{0}; i < grid.width_; ++i) os << "---+";
             os << std::endl;
-            for(int i{0}; i < grid.width_; ++i) {
-                os << "|";
-                for(int j{0}; j < grid.height_; ++j) {
-                    os << *grid.getCell(i, j);
+            for(int i{0}; i < 2 * grid.height_; ++i) {
+                const int y_coord_{i/2};
+                if(i % 2 == 0) {
+                    os << "|";
+                    for(int j{0}; j < grid.width_; ++j) os << grid.vert_walls_[y_coord_][j];
+                    os << std::endl;
                 }
-                os << std::endl;
+                else {
+                    os << "+";
+                    for(int j{0}; j < grid.width_; ++j) os << grid.hor_walls_[y_coord_][j];
+                    os << std::endl;
+                }
             }
             return os;
         }

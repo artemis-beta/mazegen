@@ -1,13 +1,8 @@
 #pragma once
 
-#include <cstdlib>
-#include <ctime>
-#include <algorithm>
-#include <string>
-#include <fstream>
-
 #include "mazegen/grid.hxx"
+#include <ctime>
+#include <vector>
+
 
 void binary_tree(Grid& grid);
-void sidewinder(Grid& grid);
-void aldous_broder(Grid& grid);

@@ -1,100 +1,52 @@
 #include "mazegen/grid.hxx"
-#include <memory>
+#include <stdexcept>
 
-CellArray Grid::create_grid_(const int x, const int y) {
-    CellArray grid_;
+void Grid::eraseHorizontalWallAt(const int x, const int y) {
+    hor_walls_[y][x] = "   +";
+}
 
-    for(int i{0}; i < x; ++i) {
-        std::vector<std::shared_ptr<Cell>> row_;
-        for(int j{0}; j < y; ++j) {
-            std::shared_ptr<Cell> cell_{new Cell(i, j)};
-            row_.push_back(cell_);
-        }
-        grid_.push_back(row_);
+void Grid::eraseVerticalWallAt(const int x, const int y) {
+    vert_walls_[y][x] = "    ";
+}
+
+std::vector<Direction> Grid::getPermittedPaths(const std::vector<int>& coords) const {
+    std::vector<Direction> permitted_;
+
+    for(int i{0}; i < 4; ++i) {
+        const Direction dir{static_cast<Direction>(i)};
+        if(checkPermittedPath(coords, dir)) permitted_.push_back(dir);
     }
 
-    return grid_;
+    return permitted_;
 }
 
-void Cell::setNeighbour(Direction direction, std::shared_ptr<Cell> cell) {
-    neighbours_[direction] = cell;
+bool Grid::checkPermittedPath(const std::vector<int>& coords, const Direction dir) const {
+    const bool no_right_{coords[0] >= width_ - 1 && dir == Direction::RIGHT};
+    const bool no_left_{coords[0] < 1 && dir == Direction::LEFT};
+    const bool no_up_{coords[1] < 1 && dir == Direction::UP};
+    const bool no_down_{coords[1] >= height_ - 1 && dir == Direction::DOWN};
+
+    return (!no_right_ && !no_left_ && !no_up_ && !no_down_);
 }
 
-void Grid::eraseWall(int x, int y, Direction direction) {
-    std::shared_ptr<Cell> this_cell_{getCell(x, y)};
+void Grid::linkCells(const std::vector<int>& coords_1, const Direction dir) {
 
-    std::vector<int> offset_;
-
-    switch(direction) {
-        case Direction::UP:
-            offset_ = {0, -1};
-            break;
-        case Direction::DOWN:
-            offset_ = {0, 1};
-            break;
-        case Direction::RIGHT:
-            offset_ = {1, 0};
-            break;
-        default:
-            offset_ = {-1, 0};
-            break;
-    };
-
-    std::shared_ptr<Cell> other_cell_{getCell(x + offset_[0], y + offset_[1])};
-
-    this_cell_->setNeighbour(direction, other_cell_);
-
-    if(direction == Direction::DOWN) this_cell_->eraseDown();
-    else if(direction == Direction::RIGHT) this_cell_->eraseRight();
-
-}
-
-std::shared_ptr<Cell> Grid::getCell(int x, int y) {
-    if(x > width_ - 1 || y > height_ - 1 || 0 > x || 0 > y ) {
-        throw std::runtime_error(
-            "Specified coordinate [" +
-            std::to_string(x) +
-            ", " +
-            std::to_string(y) +
-            "] invalid for grid of dimensions (" +
-            std::to_string(width_) +
-            ", " +
-            std::to_string(height_) +
-            ")")
-        ;
+    if(!checkPermittedPath(coords_1, dir)) {
+        throw std::runtime_error("Invalid path selection");
     }
-
-    return cells_[y][x];
-}
-
-std::shared_ptr<Cell> Cell::getNeighbour(Direction direction) const {
-    return neighbours_.at(direction);
-}
-
-std::vector<int> Grid::getNeighbourCoordinates(const std::shared_ptr<Cell> cell, Direction direction) const {
-    const std::vector<int> current_coords_{cell->getCoordinates()};
-
-    std::vector<int> offset_;
-
-    switch(direction) {
-        case Direction::UP:
-            offset_ = {0, -1};
-            break;
-        case Direction::DOWN:
-            offset_ = {0, 1};
+    
+    switch(dir) {
+        case Direction::LEFT:
+            eraseVerticalWallAt(coords_1[0] - 1, coords_1[1]);
             break;
         case Direction::RIGHT:
-            offset_ = {1, 0};
+            eraseVerticalWallAt(coords_1[0], coords_1[1]);
+            break;
+        case Direction::UP:
+            eraseHorizontalWallAt(coords_1[0], coords_1[1] - 1);
             break;
         default:
-            offset_ = {-1, 0};
+            eraseHorizontalWallAt(coords_1[0], coords_1[1]);
             break;
-    };
-
-    std::vector<int> new_coords_{current_coords_[0] + offset_[0], current_coords_[1] + offset_[1]};
-
-    if(new_coords_[0] >= width_ || new_coords_[0] < 0) return {};
-    if(new_coords_[1] >= height_ || new_coords_[1] < 0) return {};
-
-    return new_coords_;
+    }
 }
